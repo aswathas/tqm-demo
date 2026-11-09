@@ -90,7 +90,7 @@
   <label class="lab" for="aw">Quality awareness across the organisation</label>
   <input type="range" id="aw" min="0" max="4" step="1" value="0">
   <div class="readout" id="ro"></div>
-  <svg id="chart" viewBox="0 0 720 300" width="100%" role="img"
+  <svg id="chart" viewBox="0 0 720 300" width="100%" preserveAspectRatio="xMidYMid meet" role="img"
        aria-label="Line chart of total, failure, appraisal and prevention cost against quality awareness"></svg>
   <div class="verdict" id="vd">
     <div class="q" id="vdq">The chairman's question</div>
@@ -146,7 +146,15 @@
     {name:"Appraisal cost",     v:APPR,  c:"#8F6210"},
     {name:"Prevention cost",    v:PREV,  c:"#1B7B71"}
   ];
-  var W=720, H=300, PAD={t:46,r:16,b:38,l:44};
+  // The demo is scanned on a phone, so the chart must be legible at 390px.
+  // A fixed 720-wide viewBox shrinks 11px type down to ~5px on a phone, so
+  // the geometry (and the type inside it) is chosen from the viewport width.
+  var NARROW = window.innerWidth < 560;
+  var W = NARROW ? 430 : 720, H = NARROW ? 250 : 300;
+  var PAD = NARROW ? {t:44,r:12,b:34,l:34} : {t:46,r:16,b:38,l:44};
+  var FS_AX  = NARROW ? 13 : 11;   // y-axis numbers
+  var FS_LEG = NARROW ? 13 : 12;   // legend
+  var FS_CAT = NARROW ? 13 : 12;   // x-axis categories
   var iw=W-PAD.l-PAD.r, ih=H-PAD.t-PAD.b, YMAX=120;
   var X=function(i){return PAD.l + (iw*i)/(CATS.length-1);};
   var Y=function(v){return PAD.t + ih - (v/YMAX)*ih;};
@@ -187,12 +195,13 @@
     for(var g=0; g<=YMAX; g+=20){
       svg.appendChild(el("line",{x1:PAD.l,y1:Y(g),x2:W-PAD.r,y2:Y(g),
         stroke:"#D8DDE4","stroke-width":1}));
-      var tx=el("text",{x:PAD.l-9,y:Y(g)+4,"text-anchor":"end","font-size":11,
+      var tx=el("text",{x:PAD.l-8,y:Y(g)+4,"text-anchor":"end","font-size":FS_AX,
         fill:"#4A5460","font-family":"ui-monospace,monospace"}); tx.textContent=g;
       svg.appendChild(tx);
     }
     CATS.forEach(function(c,i){
-      var tx=el("text",{x:X(i),y:H-14,"text-anchor":"middle","font-size":12,
+      var anchor = i===0 ? "start" : (i===CATS.length-1 ? "end" : "middle");
+      var tx=el("text",{x:X(i),y:H-12,"text-anchor":anchor,"font-size":FS_CAT,
         fill:"#4A5460","font-family":"ui-monospace,monospace"}); tx.textContent=c;
       svg.appendChild(tx);
     });
@@ -205,13 +214,16 @@
       });
     });
     // legend
-    var lx=PAD.l;
+    var lx=PAD.l, row=0;
     SERIES.forEach(function(s){
-      svg.appendChild(el("rect",{x:lx,y:PAD.t-30,width:16,height:3,fill:s.c,rx:1.5}));
-      var tx=el("text",{x:lx+22,y:PAD.t-23,"font-size":12,fill:"#4A5460",
+      var wpx = 26 + s.name.length*(FS_LEG*0.62);
+      if (NARROW && lx + wpx > W - PAD.r) { lx = PAD.l; row++; }
+      var ly = PAD.t - 30 + row*18;
+      svg.appendChild(el("rect",{x:lx,y:ly,width:16,height:3,fill:s.c,rx:1.5}));
+      var tx=el("text",{x:lx+22,y:ly+7,"font-size":FS_LEG,fill:"#4A5460",
         "font-family":"ui-monospace,monospace"}); tx.textContent=s.name;
       svg.appendChild(tx);
-      lx += 26 + s.name.length*7.1;
+      lx += wpx;
     });
   }
 
@@ -245,6 +257,19 @@
     draw();
   }
   slider.addEventListener("input",update);
+  var _resizeT=null;
+  window.addEventListener("resize", function(){
+    clearTimeout(_resizeT);
+    _resizeT=setTimeout(function(){
+      NARROW = window.innerWidth < 560;
+      W = NARROW ? 430 : 720; H = NARROW ? 250 : 300;
+      PAD = NARROW ? {t:44,r:12,b:34,l:34} : {t:46,r:16,b:38,l:44};
+      FS_AX = NARROW ? 13 : 11; FS_LEG = NARROW ? 13 : 12; FS_CAT = NARROW ? 13 : 12;
+      iw=W-PAD.l-PAD.r; ih=H-PAD.t-PAD.b;
+      svg.setAttribute("viewBox","0 0 "+W+" "+H);
+      draw();
+    },150);
+  });
 
   // --- gates ---
   var g=document.getElementById("gates");
