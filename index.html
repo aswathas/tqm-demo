@@ -191,6 +191,7 @@
   function el(n,a){var e=document.createElementNS("http://www.w3.org/2000/svg",n);
     for(var k in a){e.setAttribute(k,a[k]);} return e;}
   function draw(){
+    svg.setAttribute("viewBox","0 0 "+W+" "+H);
     while(svg.firstChild){svg.removeChild(svg.firstChild);}
     for(var g=0; g<=YMAX; g+=20){
       svg.appendChild(el("line",{x1:PAD.l,y1:Y(g),x2:W-PAD.r,y2:Y(g),
