@@ -1,0 +1,285 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>The Five Gates of Chai Junction — an interactive TQM demo</title>
+<style>
+  :root{
+    --bg:#F4F5F7; --ink:#12161C; --muted:#4A5460; --gold:#7D640D;
+    --card:#FFFFFF; --card3:#F2F4F7; --line:#D8DDE4;
+    --g1:#2F6BC4; --g2:#1B7B71; --g3:#407B22; --g4:#8F6210; --g5:#6D4FB8;
+    --danger:#B2372F; --teal:#166F65;
+    --sans:-apple-system,BlinkMacSystemFont,"Segoe UI",Inter,Roboto,Helvetica,Arial,sans-serif;
+    --mono:ui-monospace,"SF Mono",Menlo,Consolas,monospace;
+  }
+  *{box-sizing:border-box}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--sans);
+       -webkit-font-smoothing:antialiased;line-height:1.5}
+  .wrap{max-width:1080px;margin:0 auto;padding:0 20px 72px}
+  header{padding:56px 0 28px;border-bottom:1px solid var(--line);margin-bottom:36px}
+  .kicker{font-family:var(--mono);font-size:12px;letter-spacing:.14em;color:var(--gold);
+          text-transform:uppercase;font-weight:700}
+  h1{font-size:clamp(30px,5vw,46px);line-height:1.08;margin:14px 0 10px;letter-spacing:-.02em}
+  .sub{font-size:17px;color:var(--muted);max-width:62ch;margin:0}
+  h2{font-size:23px;margin:44px 0 6px;letter-spacing:-.01em}
+  .lede{color:var(--muted);margin:0 0 18px;max-width:66ch}
+  .card{background:var(--card);border:1px solid var(--line);border-radius:14px;padding:22px}
+  .grid{display:grid;gap:16px}
+  .g2{grid-template-columns:1fr 1fr}
+  .g3{grid-template-columns:repeat(3,1fr)}
+  @media(max-width:820px){.g2,.g3{grid-template-columns:1fr}}
+  label.lab{font-family:var(--mono);font-size:11.5px;letter-spacing:.11em;text-transform:uppercase;
+            color:var(--muted);font-weight:700;display:block;margin-bottom:8px}
+  input[type=range]{width:100%;accent-color:var(--gold);height:28px}
+  .readout{display:flex;gap:10px;flex-wrap:wrap;margin-top:6px}
+  .chip{border:1px solid var(--line);background:var(--card3);border-radius:10px;padding:8px 12px;
+        font-family:var(--mono);font-size:12.5px;color:var(--muted)}
+  .chip b{color:var(--ink);font-size:15px;display:block}
+  .verdict{border-left:4px solid var(--gold);background:var(--card3);border-radius:0 10px 10px 0;
+           padding:14px 18px;margin-top:18px}
+  .verdict .q{font-family:var(--mono);font-size:11.5px;letter-spacing:.1em;text-transform:uppercase;
+               color:var(--gold);font-weight:700;margin-bottom:6px}
+  .verdict p{margin:0;color:var(--ink);font-size:15.5px}
+  .steps{counter-reset:s;list-style:none;padding:0;margin:0}
+  .steps li{counter-increment:s;position:relative;padding:14px 16px 14px 56px;border:1px solid var(--line);
+            border-radius:12px;background:var(--card);margin-bottom:10px}
+  .steps li::before{content:counter(s);position:absolute;left:14px;top:13px;width:26px;height:26px;
+      border-radius:50%;background:var(--ink);color:var(--card);font-family:var(--mono);font-size:13px;
+      display:flex;align-items:center;justify-content:center;font-weight:700}
+  .steps li b{display:block;margin-bottom:2px}
+  .steps li span{color:var(--muted);font-size:14.5px}
+  .gate{border-top:4px solid var(--ink);padding-top:14px}
+  .gate .n{font-family:var(--mono);font-size:11.5px;letter-spacing:.12em;text-transform:uppercase;
+           font-weight:700;color:var(--muted)}
+  .gate h3{margin:4px 0 6px;font-size:16.5px}
+  .gate p{margin:0;font-size:14px;color:var(--muted)}
+  .bar{height:9px;border-radius:5px;background:var(--card3);overflow:hidden;margin-top:10px}
+  .bar i{display:block;height:100%;border-radius:5px}
+  footer{margin-top:56px;padding-top:22px;border-top:1px solid var(--line);color:var(--muted);font-size:13.5px}
+  a{color:var(--teal)}
+  table{width:100%;border-collapse:collapse;font-size:14px}
+  th,td{text-align:left;padding:9px 10px;border-bottom:1px solid var(--line)}
+  th{font-family:var(--mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted)}
+  td.num{font-family:var(--mono);text-align:right}
+  .good{color:var(--g3);font-weight:700}.bad{color:var(--danger);font-weight:700}
+  .hint{font-family:var(--mono);font-size:12px;color:var(--muted);margin-top:10px}
+  .pill{display:inline-block;font-family:var(--mono);font-size:11px;letter-spacing:.08em;
+        text-transform:uppercase;font-weight:700;padding:3px 8px;border-radius:99px;
+        background:var(--card3);border:1px solid var(--line);color:var(--muted)}
+</style>
+</head>
+<body>
+<div class="wrap">
+
+<header>
+  <div class="kicker">Phases of TQM Implementation · Part II · Live Demo</div>
+  <h1>The Five Gates of Chai Junction</h1>
+  <p class="sub">A 14-outlet coffee chain cannot explain one viral complaint.
+     Move the slider and watch <b>why quality first costs money</b> — then see the five
+     gates that turn the mystery into a self-sustaining quality system.</p>
+</header>
+
+<h2>1 · Why quality first costs money</h2>
+<p class="lede">This is the model from slide 8 of the talk, live. Drag the slider to raise
+   <b>quality awareness</b> across the organisation and watch the three costs move.
+   Notice what happens to <i>total</i> cost in the first step — that dip is the part
+   most people get wrong.</p>
+
+<div class="card">
+  <label class="lab" for="aw">Quality awareness across the organisation</label>
+  <input type="range" id="aw" min="0" max="4" step="1" value="0">
+  <div class="readout" id="ro"></div>
+  <svg id="chart" viewBox="0 0 720 300" width="100%" role="img"
+       aria-label="Line chart of total, failure, appraisal and prevention cost against quality awareness"></svg>
+  <div class="verdict" id="vd">
+    <div class="q" id="vdq">The chairman's question</div>
+    <p id="vdp"></p>
+  </div>
+  <div class="hint">Data: Oakland's cost-of-quality model, as used in the lecture.</div>
+</div>
+
+<h2>2 · The five gates</h2>
+<p class="lede">Each gate opens only if the previous one is genuinely closed. This is why
+   TQM projects die — not because a tool was missing, but because a gate was skipped.</p>
+<div class="grid g3" id="gates"></div>
+
+<h2>3 · One cycle, told as a story</h2>
+<p class="lede">The T-Nagar 6:40 queue, from slide 11. This is what an improvement cycle
+   actually looks like when somebody measures something first.</p>
+<div class="card">
+  <table>
+    <thead><tr><th>Step</th><th>What happened</th><th style="text-align:right">Wait time</th></tr></thead>
+    <tbody id="cyc"></tbody>
+  </table>
+  <div class="verdict">
+    <div class="q">The scale-up rule</div>
+    <p>One outlet proved it. The other thirteen copied the SOP — they did not re-run the
+       experiment, because the cause was a <b>system</b> cause, not a local one.</p>
+  </div>
+</div>
+
+<h2>4 · Six ways TQM dies</h2>
+<p class="lede">Every one of these is a skipped phase in disguise. Each has a specific antidote.</p>
+<div class="grid g2" id="kills"></div>
+
+<footer>
+  <p><b>Phases of TQM Implementation — Part II.</b> Implementation · Measurement ·
+     Continuous improvement · Review · Sustaining TQM. Lecture 15, pages 126–247.</p>
+  <p>Built as a live companion to the 10-minute talk. The full deck and teaching guide
+     are linked from your instructor.</p>
+</footer>
+
+</div>
+
+<script>
+(function(){
+  "use strict";
+  var CATS  = ["Low", "Rising", "Medium", "High", "Very high"];
+  var TOTAL = [106, 112, 106, 88, 80];
+  var FAIL  = [100, 82, 58, 26, 10];
+  var APPR  = [4, 22, 30, 28, 22];
+  var PREV  = [2, 8, 18, 34, 48];
+  var SERIES = [
+    {name:"Total quality cost", v:TOTAL, c:"#7D640D"},
+    {name:"Failure cost",       v:FAIL,  c:"#B2372F"},
+    {name:"Appraisal cost",     v:APPR,  c:"#8F6210"},
+    {name:"Prevention cost",    v:PREV,  c:"#1B7B71"}
+  ];
+  var W=720, H=300, PAD={t:16,r:16,b:38,l:44};
+  var iw=W-PAD.l-PAD.r, ih=H-PAD.t-PAD.b, YMAX=120;
+  var X=function(i){return PAD.l + (iw*i)/(CATS.length-1);};
+  var Y=function(v){return PAD.t + ih - (v/YMAX)*ih;};
+
+  var GATES=[
+    {n:"Gate 1", c:"#2F6BC4", t:"Make it stable",  p:"Standard work, trained hands, a process that can be repeated. Nothing else works until this is true.",
+     s:"Process capability"},
+    {n:"Gate 2", c:"#1B7B71", t:"Make it measurable", p:"Five numbers on a sheet, visible every morning. If you cannot see it, you cannot manage it.",
+     s:"Measurement"},
+    {n:"Gate 3", c:"#407B22", t:"Make it fixable", p:"Find the cause with data, not opinion. Then change the process, not the person.",
+     s:"Improvement"},
+    {n:"Gate 4", c:"#8F6210", t:"Make it reviewable", p:"Look back honestly: what improved, what did not, and what you would do differently.",
+     s:"Review"},
+    {n:"Gate 5", c:"#6D4FB8", t:"Make it self-sustaining", p:"The habit must belong to the company, not to the champion. It has to survive the champion leaving.",
+     s:"Sustaining"}
+  ];
+  var CYCLE=[
+    ["Define","The team writes it down — reduce wait time below 4 minutes, measured from order to handoff, without hiring anyone.","6 min 40 s"],
+    ["Review & Investigate","The data shows milk is fetched from the cold room during the rush, and the grinder is refilled mid-service.","6 min 40 s"],
+    ["Verify","A two-week trial: pre-stage the grinder, move the milk station to the counter.","5 min 55 s"],
+    ["Execute","The new sequence is written into the SOP and the barista training. It survives the next staff rotation.","4 min 10 s"]
+  ];
+  var KILLS=[
+    ["Big-bang rollout","Everything, everywhere, immediately.","Pilot one outlet for 90 days."],
+    ["Tools before systems","Software and charts with no SOPs or data recording.","Systems → teams → tools. Always."],
+    ["Measuring what is easy","Beans per hour, not the customer's experience.","CSF → KPI → customer-visible measure."],
+    ["The one-off hero fix","One great kaizen, then everyone goes back to the old way.","Standard work + ownership + review."],
+    ["Blaming the people","Training retraining, motivational seminars, blame.","Fix the process. The person was inside it."],
+    ["No sustain mechanism","The champion leaves and the whole thing stops.","Embed in SOP, audit, handover."]
+  ];
+
+  // --- chart ---
+  var svg=document.getElementById("chart");
+  function el(n,a){var e=document.createElementNS("http://www.w3.org/2000/svg",n);
+    for(var k in a){e.setAttribute(k,a[k]);} return e;}
+  function draw(){
+    while(svg.firstChild){svg.removeChild(svg.firstChild);}
+    for(var g=0; g<=YMAX; g+=20){
+      svg.appendChild(el("line",{x1:PAD.l,y1:Y(g),x2:W-PAD.r,y2:Y(g),
+        stroke:"#D8DDE4","stroke-width":1}));
+      var tx=el("text",{x:PAD.l-9,y:Y(g)+4,"text-anchor":"end","font-size":11,
+        fill:"#4A5460","font-family":"ui-monospace,monospace"}); tx.textContent=g;
+      svg.appendChild(tx);
+    }
+    CATS.forEach(function(c,i){
+      var tx=el("text",{x:X(i),y:H-14,"text-anchor":"middle","font-size":12,
+        fill:"#4A5460","font-family":"ui-monospace,monospace"}); tx.textContent=c;
+      svg.appendChild(tx);
+    });
+    SERIES.forEach(function(s){
+      var d=s.v.map(function(v,i){return (i?"L":"M")+X(i)+" "+Y(v);}).join(" ");
+      svg.appendChild(el("path",{d:d,fill:"none",stroke:s.c,"stroke-width":2.5,
+        "stroke-linejoin":"round","stroke-linecap":"round"}));
+      s.v.forEach(function(v,i){
+        svg.appendChild(el("circle",{cx:X(i),cy:Y(v),r:3.6,fill:s.c}));
+      });
+    });
+    // legend
+    var lx=PAD.l;
+    SERIES.forEach(function(s){
+      svg.appendChild(el("rect",{x:lx,y:PAD.t-2,width:16,height:3,fill:s.c,rx:1.5}));
+      var tx=el("text",{x:lx+22,y:PAD.t+5,"font-size":12,fill:"#4A5460",
+        "font-family":"ui-monospace,monospace"}); tx.textContent=s.name;
+      svg.appendChild(tx);
+      lx += 26 + s.name.length*7.1;
+    });
+  }
+
+  // --- readout + verdict ---
+  var VERDICTS=[
+    {q:"The chairman's question",
+     p:"<b>Why spend more to fix it first?</b> Because prevention is an investment; failure is a dividend you pay the customer. At low awareness, failure costs ₹100 of every ₹106 you spend — and the customer, not you, collects most of it."},
+    {q:"The first dip — the part everyone misses",
+     p:"Quality <b>initially costs more</b>. Total cost rises from ₹106 to ₹112 before it falls. You are buying appraisal and prevention before failure starts dropping. If you measure only the first month, TQM looks like it failed."},
+    {q:"The turn",
+     p:"From here the arithmetic reverses. Failure cost is falling fast, appraisal and prevention are holding steady. Total cost is now falling faster than any single line rises — and the complaints stop."},
+    {q:"The prize",
+     p:"Total cost has fallen from ₹106 to ₹80 — a <b>25% drop</b> — while failure cost has collapsed from ₹100 to ₹10. The quality gain was bought once, at the top of the curve, and then paid for itself every day after."},
+    {q:"The lesson to carry",
+     p:"Prevention is an investment; failure is a dividend you pay the customer. The curve crosses over only <b>after</b> the spend rises. That is why TQM programmes die in month two — the measurement stops before the benefit arrives."}
+  ];
+  var slider=document.getElementById("aw"), ro=document.getElementById("ro");
+  function update(){
+    var i=+slider.value;
+    ro.innerHTML="";
+    [["Total",TOTAL[i],"#7D640D"],["Failure",FAIL[i],"#B2372F"],
+     ["Appraisal",APPR[i],"#8F6210"],["Prevention",PREV[i],"#1B7B71"]]
+    .forEach(function(r){
+      var d=document.createElement("div");
+      d.className="chip";
+      d.innerHTML="<b>"+r[1]+"</b>"+r[0]+" cost";
+      ro.appendChild(d);
+    });
+    document.getElementById("vdq").textContent=VERDICTS[i].q;
+    document.getElementById("vdp").innerHTML=VERDICTS[i].p;
+    draw();
+  }
+  slider.addEventListener("input",update);
+
+  // --- gates ---
+  var g=document.getElementById("gates");
+  GATES.forEach(function(x){
+    var d=document.createElement("div");
+    d.className="card gate";
+    d.style.borderTopColor=x.c;
+    d.innerHTML='<div class="n">'+x.n+'</div><h3>'+x.t+'</h3><p>'+x.p+'</p>'+
+      '<div class="hint">'+x.s+'</div>';
+    g.appendChild(d);
+  });
+
+  // --- cycle ---
+  var cy=document.getElementById("cyc");
+  CYCLE.forEach(function(r){
+    var tr=document.createElement("tr");
+    var good=/4 min/.test(r[2]);
+    tr.innerHTML="<td><b>"+r[0]+"</b></td><td>"+r[1]+'</td><td class="num '+
+      (good?"good":"bad")+'">'+r[2]+"</td>";
+    cy.appendChild(tr);
+  });
+
+  // --- kills ---
+  var k=document.getElementById("kills");
+  KILLS.forEach(function(r){
+    var d=document.createElement("div");
+    d.className="card";
+    d.innerHTML='<div class="pill">Failure mode</div><h3 style="margin:10px 0 4px;font-size:16px">'+
+      r[0]+'</h3><p style="margin:0 0 10px;color:var(--muted);font-size:14px">'+r[1]+
+      '</p><div class="hint" style="margin:0"><b style="color:var(--ink)">Antidote:</b> '+r[2]+'</div>';
+    k.appendChild(d);
+  });
+
+  update();
+})();
+</script>
+</body>
+</html>
