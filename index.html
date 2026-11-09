@@ -146,7 +146,7 @@
     {name:"Appraisal cost",     v:APPR,  c:"#8F6210"},
     {name:"Prevention cost",    v:PREV,  c:"#1B7B71"}
   ];
-  var W=720, H=300, PAD={t:16,r:16,b:38,l:44};
+  var W=720, H=300, PAD={t:46,r:16,b:38,l:44};
   var iw=W-PAD.l-PAD.r, ih=H-PAD.t-PAD.b, YMAX=120;
   var X=function(i){return PAD.l + (iw*i)/(CATS.length-1);};
   var Y=function(v){return PAD.t + ih - (v/YMAX)*ih;};
@@ -207,8 +207,8 @@
     // legend
     var lx=PAD.l;
     SERIES.forEach(function(s){
-      svg.appendChild(el("rect",{x:lx,y:PAD.t-2,width:16,height:3,fill:s.c,rx:1.5}));
-      var tx=el("text",{x:lx+22,y:PAD.t+5,"font-size":12,fill:"#4A5460",
+      svg.appendChild(el("rect",{x:lx,y:PAD.t-30,width:16,height:3,fill:s.c,rx:1.5}));
+      var tx=el("text",{x:lx+22,y:PAD.t-23,"font-size":12,fill:"#4A5460",
         "font-family":"ui-monospace,monospace"}); tx.textContent=s.name;
       svg.appendChild(tx);
       lx += 26 + s.name.length*7.1;
